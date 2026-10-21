@@ -73,6 +73,7 @@ public final class QuickSettingsActivity extends Activity {
             addRow(rows, R.drawable.ic_picture, R.string.quick_picture, 0, pictureIntent());
             addRow(rows, R.drawable.ic_sound, R.string.quick_sound, 0, soundIntent());
             addRow(rows, R.drawable.ic_wifi, R.string.quick_network, 0, new Intent(Settings.ACTION_WIFI_SETTINGS));
+            addRow(rows, R.drawable.ic_bluetooth, R.string.quick_bluetooth, 0, bluetoothIntent());
             addRow(rows, R.drawable.ic_screensaver, R.string.quick_screensaver, 0, screensaverIntent());
             addRow(rows, R.drawable.ic_apps, R.string.quick_apps, R.string.quick_apps_hint,
                     new Intent(Settings.ACTION_MANAGE_APPLICATIONS_SETTINGS));
@@ -84,6 +85,7 @@ public final class QuickSettingsActivity extends Activity {
             addRow(rows, R.drawable.ic_picture, R.string.quick_picture, 0, pictureIntent());
             addRow(rows, R.drawable.ic_sound, R.string.quick_sound, 0, soundIntent());
             addRow(rows, R.drawable.ic_wifi, R.string.quick_network, 0, new Intent(Settings.ACTION_WIFI_SETTINGS));
+            addRow(rows, R.drawable.ic_bluetooth, R.string.quick_bluetooth, 0, bluetoothIntent());
 
             int beforeInputs = rows.getChildCount();
             populateInputs(rows, cfg);
@@ -241,6 +243,43 @@ public final class QuickSettingsActivity extends Activity {
         return new Intent("android.settings.DREAM_SETTINGS");
     }
 
+    private Intent bluetoothIntent() {
+        Intent slice = new Intent("android.settings.SLICE_SETTINGS")
+                .setComponent(new ComponentName("com.android.tv.settings", "com.android.tv.settings.slice.SliceActivity"))
+                .putExtra("slice_uri", "content://com.android.tv.settings.accessories.sliceprovider/general")
+                .putExtra("startup_verification_required", false);
+        if (getPackageManager().resolveActivity(slice, 0) != null) {
+            return slice;
+        }
+        Intent sliceAction = new Intent("android.settings.SLICE_SETTINGS")
+                .putExtra("slice_uri", "content://com.android.tv.settings.accessories.sliceprovider/general")
+                .putExtra("startup_verification_required", false);
+        if (getPackageManager().resolveActivity(sliceAction, 0) != null) {
+            return sliceAction;
+        }
+        Intent accessory = new Intent();
+        accessory.setComponent(new ComponentName("com.android.tv.settings",
+                "com.android.tv.settings.accessories.AccessoryActivity"));
+        if (getPackageManager().resolveActivity(accessory, 0) != null) {
+            return accessory;
+        }
+        Intent standard = new Intent(Settings.ACTION_BLUETOOTH_SETTINGS);
+        if (getPackageManager().resolveActivity(standard, 0) != null) {
+            return standard;
+        }
+        Intent connectInput = new Intent("com.google.android.intent.action.CONNECT_INPUT");
+        if (getPackageManager().resolveActivity(connectInput, 0) != null) {
+            return connectInput;
+        }
+        Intent addAccessory = new Intent();
+        addAccessory.setComponent(new ComponentName("com.android.tv.settings",
+                "com.android.tv.settings.accessories.AddAccessoryActivity"));
+        if (getPackageManager().resolveActivity(addAccessory, 0) != null) {
+            return addAccessory;
+        }
+        return new Intent(Settings.ACTION_SETTINGS);
+    }
+
     private void addInputRow(LinearLayout rows, int iconRes, String title, int state, Runnable action) {
         View row = getLayoutInflater().inflate(R.layout.item_input, rows, false);
         ((ImageView) row.findViewById(R.id.icon)).setImageResource(iconRes);
@@ -306,7 +345,7 @@ public final class QuickSettingsActivity extends Activity {
     private void openIntent(Intent intent) {
         try {
             startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-        } catch (ActivityNotFoundException e) {
+        } catch (ActivityNotFoundException | SecurityException e) {
             Toast.makeText(this, R.string.not_available, Toast.LENGTH_SHORT).show();
         }
     }
