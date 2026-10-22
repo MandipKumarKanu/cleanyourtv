@@ -107,6 +107,40 @@ phoning home, no apps you never asked for.
 | ![The aurora theme: a wallpaper and tinted pills, pushed without a rebuild](docs/theme-aurora.jpg) | ![Six columns and a six-app dock from a theme's config.json](docs/theme-six-columns.jpg) |
 | *Aurora theme, pushed with `tools/theme.sh`* | *Six columns and a six-app dock, same launcher* |
 
+## Built-in Live TV & DTH Player (`apps/live-tv`)
+
+CleanYourTV includes a native, blazingly fast Live TV app built specifically for Android TV and Google TV sets. It delivers a complete Indian DTH Set-Top-Box experience (like Tata Play and Airtel Digital TV) over Wi-Fi, with zero monthly subscriptions and zero bloat.
+
+| | |
+|---|---|
+| ![Live TV Channel Browser with 1,100+ channels and categories](docs/live-tv-home.png) | ![DTH-Style 4-Hour Timeline Program Guide (EPG) with live PIP video](docs/live-tv-epg.png) |
+| *1,100+ Live Channels categorized with Voice Search & Language Filter* | *Classic 4-Hour Timeline EPG with Program Synopsis & PIP Video* |
+| <img src="docs/live-tv-player.png" alt="Full-screen HD live broadcast playback" width="400"> | <img src="docs/live-tv-epg.png" alt="DTH Timeline Guide with program synopsis" width="400"> |
+| *Full HD Live Playback with Multi-Audio & Fit Controls* | *DTH Program Guide with instant D-pad Genre Switching* |
+
+### Highlights
+
+- **1,100+ Live Channels**: Curated Indian & Global channels (News, Entertainment, Movies, Sports, Music, Kids, Infotainment, Business, Devotional) organized in a fast-scrolling sidebar with channel counts and language filtering.
+- **DTH-Style Timeline EPG (Program Guide)**: Full 4-hour horizontal timeline matching Tata Play / Airtel STBs. View program descriptions, current progress bars, and upcoming schedules while watching live video in the background.
+- **100% D-Pad Remote Navigable**:
+  - In the Timeline Guide, press **Up (⬆️)** from the top channel row to jump straight into the Category Pill.
+  - Cycle genres with **Left / Right (⬅️/➡️)** or press **OK** to open a clean **Category Picker Modal Dialog**.
+  - Fast-scroll through large channel lists with **Channel Up/Down (Page Up/Down)**.
+- **Multi-Audio Track & Dual-Language Switching**:
+  - Hardware-accelerated ExoPlayer Media3 audio rendering.
+  - Direct audio language switching (*English, Hindi, Spanish, Tamil, German, Japanese, etc.*) for channels with dual/multi-audio broadcasts (such as ESPN, Rally TV, ABP News).
+- **Live Buffer Window**: Automatically establishes a jitter-buffer behind the live edge so streams play smoothly without buffering on unstable Wi-Fi.
+- **Remote TV Shortcuts**: Instant Voice Search with microphone support, Screen Fit toggle (*Fit, Fill, Zoom, 16:9*), favorite channels bookmarking, and single-click Last Channel recall.
+- **Ultra-Lightweight & GPU Optimized**: Pre-built offstage caching and zero per-tile animation overhead — runs at a steady 60 fps even on 1 GB RAM smart TVs.
+
+### Build & Install Live TV
+
+```bash
+cd apps/live-tv
+JAVA_HOME=/path/to/jdk-17 ANDROID_HOME=/path/to/android-sdk flutter build apk --release
+adb install -r build/app/outputs/flutter-apk/app-release.apk
+```
+
 ## Supported TVs
 
 Anything running **Android TV** or **Google TV**. Samsung (Tizen) and LG (webOS) run different
