@@ -274,6 +274,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        AccessibilityEnabler.ensureEnabled(this);
         setContentView(R.layout.activity_main);
         density = getResources().getDisplayMetrics().density;
         // config.xml, overlaid by config.json from a pushed theme (see Config and tools/theme.sh).
@@ -592,6 +593,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     protected void onResume() {
         super.onResume();
         isForeground = true;
+        AccessibilityEnabler.ensureEnabled(this);
         // A festival that started or ended while Home was in the background: rebuild with or without it.
         if (festive != festival.active(LocalDate.now())) {
             recreate();
@@ -769,6 +771,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
      * or switched off by a force-stop) the stock launcher that used to handle the key is gone, and the button did
      * nothing even on Home.
      */
+    private long lastSettingsKeyLaunchTime = 0;
+
     private boolean handleSettingsKey(KeyEvent event) {
         int kc = event.getKeyCode();
         boolean match = kc == KeyEvent.KEYCODE_SETTINGS || kc == KeyEvent.KEYCODE_NOTIFICATION || kc == KeyEvent.KEYCODE_MENU || kc == 308;
@@ -782,12 +786,16 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         }
         if (match) {
             if (event.getAction() == KeyEvent.ACTION_UP && !event.isCanceled()) {
-                if (settingsKeyPanel) {
-                    Intent q = new Intent(this, QuickSettingsActivity.class);
-                    q.putExtra(QuickSettingsActivity.EXTRA_ON_LAUNCHER, true);
-                    open(q);
-                } else {
-                    open(systemIntent(Settings.ACTION_SETTINGS));
+                long now = System.currentTimeMillis();
+                if (now - lastSettingsKeyLaunchTime > 600) {
+                    lastSettingsKeyLaunchTime = now;
+                    if (settingsKeyPanel) {
+                        Intent q = new Intent(this, QuickSettingsActivity.class);
+                        q.putExtra(QuickSettingsActivity.EXTRA_ON_LAUNCHER, true);
+                        open(q);
+                    } else {
+                        open(systemIntent(Settings.ACTION_SETTINGS));
+                    }
                 }
             }
             return true;

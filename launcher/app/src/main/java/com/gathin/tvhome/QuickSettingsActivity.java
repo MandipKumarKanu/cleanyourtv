@@ -39,10 +39,12 @@ public final class QuickSettingsActivity extends Activity {
     public static final String EXTRA_ON_LAUNCHER = "extra_on_launcher";
 
     private int[] settingsKeycodes = new int[0];
+    private long createdTime = 0;
 
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
+        createdTime = System.currentTimeMillis();
         setContentView(R.layout.activity_quick_settings);
         findViewById(R.id.scrim).setOnClickListener(v -> finish());
 
@@ -354,18 +356,27 @@ public final class QuickSettingsActivity extends Activity {
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
+        if (System.currentTimeMillis() - createdTime < 600) {
+            return; // Ignore bounces from the same key press that opened this activity
+        }
         finish();
     }
 
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_SETTINGS || keyCode == KeyEvent.KEYCODE_NOTIFICATION || keyCode == KeyEvent.KEYCODE_MENU || keyCode == 308) {
+            if (System.currentTimeMillis() - createdTime < 600) {
+                return true; // Ignore rapid bounces / key release of the button that just opened the activity
+            }
             finish();
             return true;
         }
         if (settingsKeycodes != null) {
             for (int code : settingsKeycodes) {
                 if (keyCode == code) {
+                    if (System.currentTimeMillis() - createdTime < 600) {
+                        return true;
+                    }
                     finish();
                     return true;
                 }

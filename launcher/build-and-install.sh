@@ -84,6 +84,9 @@ if ! printf '%s' "$START_OUT" | grep -qF 'Status: ok' || printf '%s' "$START_OUT
 fi
 printf '%s\n' \
   "pm grant com.gathin.tvhome android.permission.ACCESS_FINE_LOCATION 2>/dev/null; echo location-granted" \
+  "pm grant com.gathin.tvhome android.permission.WRITE_SECURE_SETTINGS 2>/dev/null; echo secure-settings-granted" \
+  "appops set com.gathin.tvhome ACCESS_RESTRICTED_SETTINGS allow 2>/dev/null; echo restricted-settings-allowed" \
+  "dumpsys deviceidle whitelist +com.gathin.tvhome 2>/dev/null; echo battery-unrestricted" \
   "cmd package compile -m speed -f com.gathin.tvhome" \
   "$DISABLE_STOCK" \
   "cmd package set-home-activity --user 0 com.gathin.tvhome/.MainActivity" \

@@ -56,6 +56,8 @@ public class HomeKeyService extends AccessibilityService {
         return false;
     }
 
+    private long lastSettingsLaunchTime = 0;
+
     @Override
     protected boolean onKeyEvent(KeyEvent event) {
         android.util.Log.d(TAG, "onKeyEvent: action=" + event.getAction() + " keyCode=" + event.getKeyCode() + " scanCode=" + event.getScanCode());
@@ -63,11 +65,15 @@ public class HomeKeyService extends AccessibilityService {
         if (isSettingsKey(event)) {
             android.util.Log.i(TAG, "Intercepted settings key: " + event.getKeyCode());
             if (event.getAction() == KeyEvent.ACTION_UP && !event.isCanceled()) {
-                boolean onLauncher = MainActivity.isForeground ||
-                        (MainActivity.lastPausedTimestamp > 0 && (System.currentTimeMillis() - MainActivity.lastPausedTimestamp < 600));
-                Intent open = new Intent(this, QuickSettingsActivity.class);
-                open.putExtra(QuickSettingsActivity.EXTRA_ON_LAUNCHER, onLauncher);
-                startActivity(open.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+                long now = System.currentTimeMillis();
+                if (now - lastSettingsLaunchTime > 600) {
+                    lastSettingsLaunchTime = now;
+                    boolean onLauncher = MainActivity.isForeground ||
+                            (MainActivity.lastPausedTimestamp > 0 && (now - MainActivity.lastPausedTimestamp < 600));
+                    Intent open = new Intent(this, QuickSettingsActivity.class);
+                    open.putExtra(QuickSettingsActivity.EXTRA_ON_LAUNCHER, onLauncher);
+                    startActivity(open.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+                }
             }
             return true;
         }
